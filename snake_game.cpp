@@ -128,5 +128,6 @@ Checking for game-over conditions.
 */
 int main() {
 
+    return 0;
 }
 
