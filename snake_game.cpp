@@ -8,7 +8,24 @@ Snake game in C++
 
 
 #include <iostream>
+
 using namespace std;
+
+// Define a struct to hold a coordinate point
+// Used in both GameGrid and Snake classes
+struct Point {
+    int x;
+    int y;
+};
+
+// Global function to generate a random number within range [min, max]
+int get_random_number(int min, int max) {
+    // Total number of values in the range
+    int range = max - min + 1;
+    // Generate a random number from 0 to (range-1) and then shift it
+    return rand() % range + 1;
+}
+
 
 /*
 Step 1: Create game grid
@@ -19,43 +36,59 @@ Printing the grid to the console.
 Providing methods to check if a position is a wall.
 */ 
 
-// Approach 1: 2D array for 20x20 fixed-size grid
 class GameGrid {
+private:
     int grid_height = 20;
     int grid_width = 20;
-    // Declare 20x20 game grid
-    char game_grid[grid_height][grid_width];
+    vector<vector<char>> grid;  // Using vector<vector> for the grid
 
-    // Initialize grid with # for walls, and empty spaces to represent an empty game board.
-    // Store data (or game state) in gameGrid[i][j], instead of using std::cout,
-    // which wouldn't allow for tracking positions.
-    for (int i = 0; i < grid_height; ++i) {
-        if (i = 0) {
-            game_grid[i][j] = '#';
-        }
-        else {
-            for (int j = 0; j < grid_width; ++j) {
-                if (j = 0) {
-                    game_grid[i][j] = '#';
-                }
-                else {
-                    game_grid[i][j] = ' ';
+
+public:
+    // Constructor that initializes the grid
+    GameGrid() {
+        // Resize the grid to the correct dimensions
+        grid.resize(grid_height, vector<char>(grid_width));
+
+        // Initialize grid with # for walls, and empty spaces to represent an empty game board.
+        // Store data (or game state) in gameGrid[i][j], instead of using std::cout,
+        // which wouldn't allow for tracking positions.
+        for (int i = 0; i < grid_height; ++i) {
+            if (i = 0) {
+                grid[i][j] = '#';
+            }
+            else {
+                for (int j = 0; j < grid_width; ++j) {
+                    if (j = 0) {
+                        grid[i][j] = '#';
+                    }
+                    else {
+                        grid[i][j] = ' ';
+                    }
                 }
             }
         }
     }
 
-    // Print grid with initial positions
-    for (int i = 0; i < grid_height; ++i) {
-        for (int j = 0; j < grid_width; ++j) {
-            cout << game_grid[i][j];
+        // Method to print grid with initial positions
+        void draw() {
+            for (int i = 0; i < grid_height; ++i) {
+                for (int j = 0; j < grid_width; ++j) {
+                    cout << grid[i][j];
+                }  
+                cout << endl;
+            }
         }
-        cout << endl;
-    }
-};
 
-// Approach 2: std::vector of std::vector
-// ...
+        // Method to check grid boundaries (used for wall collision)
+        bool isWall(int x, int y) const {
+            return (x == 0 || x == grid_width - 1 || y == 0 || y == grid_height - 1);
+        }
+
+        // Method to update a cell on the grid (for drawing the snake/food)
+        void setCell(int x, int y, char symbol) {
+            grid[y][x] = symbol; // y is the row index, x is the column index
+        }
+};
 
 
 /*
@@ -69,6 +102,8 @@ Loop through the snakeBody vector.
 For each Point object in the vector, update the corresponding 
 cell in the gameGrid to the snake body character 'o'.
 */ 
+
+
 
 class Snake {
 
@@ -86,13 +121,18 @@ class Snake {
     We achieve this by using the modulo operator with N = (grid_height - 2). 
         So, rand() % (grid_height - 2) gives us a random number from 0 up to grid_height - 3.
     */    
-    // Function to generate a random number within range [min, max]
-    int get_random_number(int min, int max) {
-        // Total number of values in the range
-        int range = max - min + 1;
-        // Generate a random number from 0 to (range-1) and then shift it
-        return rand() % range + 1;
-    }
+
+private:
+    // Private data members
+    std::vector<Point> body;
+    int direction_x; // -1, 0, or 1
+    int direction_y; // -1, 0, or 1
+
+public:
+    // Constructor to initialize the snake's starting position and direction
+    Snake(int start_x, int start_y);
+
+
 
     srand(time(0));  // Seed the random number generator
     int min_safe_x = 1;
@@ -103,14 +143,6 @@ class Snake {
     int start_x = get_random_number(min_safe_x; max_safe_x);
     int start_y = get_random_number(min_safe_y; max_safe_y);
 
-    // Constructor to store snake's starting position
-    Snake(int start_x, int start_y);
-
-    // Define a struct to hold a coordinate point
-    struct point {
-        int x;
-        int y;
-    };
 
     // Create vector to store multiple `point` objects, representing entire snake body
     vector<point> snake_body;
